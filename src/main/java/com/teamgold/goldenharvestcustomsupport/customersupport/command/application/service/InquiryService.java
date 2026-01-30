@@ -1,0 +1,23 @@
+package com.teamgold.goldenharvestcustomsupport.customersupport.command.application.service;
+
+import com.teamgold.goldenharvestcustomsupport.customersupport.command.application.dto.request.comment.CommentCreateRequest;
+import com.teamgold.goldenharvestcustomsupport.customersupport.command.application.dto.request.inquiry.InquiryCreateRequest;
+import com.teamgold.goldenharvestcustomsupport.customersupport.command.application.dto.request.inquiry.InquiryUpdateRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
+@Service
+public interface InquiryService {
+
+    //문의 등록
+    void create(String userId, InquiryCreateRequest request, MultipartFile file) throws IOException;
+    //문의 삭제
+    void delete(String userId,String inquiryNo);
+    //문의 수정
+    void update(String userId, String inquiryNo, InquiryUpdateRequest request, MultipartFile file) throws IOException;
+    //문의 답변
+    void comment (String inquiryNo, CommentCreateRequest request);
+
+}
