@@ -75,7 +75,7 @@ jwt:
   refresh-token-expiration: 1209600000  # 1일
 
 server:
-  port: 8088
+  port: 8089
 
 inventory:
   base-url: http://localhost:8088

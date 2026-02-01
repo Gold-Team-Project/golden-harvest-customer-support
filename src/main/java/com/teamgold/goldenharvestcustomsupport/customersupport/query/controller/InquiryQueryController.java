@@ -4,6 +4,7 @@ import com.teamgold.goldenharvestcustomsupport.common.response.ApiResponse;
 import com.teamgold.goldenharvestcustomsupport.customersupport.query.service.InquiryQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class InquiryQueryController {
     }
 
     @GetMapping("/admin/inquiries")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> getAllAdminInquiry(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "size", defaultValue = "20") Integer size
@@ -35,6 +37,7 @@ public class InquiryQueryController {
     }
 
     @GetMapping("/admin/inquiries/{inquiryNo}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> getDetailAdminInquiry(@PathVariable String inquiryNo) {
         return ResponseEntity.ok(ApiResponse.success(inquiryQueryService.getDetailAdminInquiry(inquiryNo)));
     }
