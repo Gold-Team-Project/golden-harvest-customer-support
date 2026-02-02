@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,23 +24,26 @@ import java.io.IOException;
 public class InquiryController {
     private final InquiryService inquiryService;
 
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<?>> save(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestPart("request") InquiryCreateRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException {
-        String userId = "rrrr@naver.com";
-        inquiryService.create(userId, request, file);
+
+        inquiryService.create(jwt.getSubject(), request, file);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(null));
     }
 
     @DeleteMapping("/{inquiryId}")
-    public ResponseEntity<ApiResponse<?>> delete(@PathVariable String inquiryId) {
-        //todo 인증/인가 구현 후 수정
-        String userId = "rrrr@naver.com";
-        inquiryService.delete(userId, inquiryId);
+    public ResponseEntity<ApiResponse<?>> delete(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String inquiryId) {
+
+        inquiryService.delete(jwt.getSubject(), inquiryId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
@@ -46,18 +52,19 @@ public class InquiryController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<ApiResponse<?>> update(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable String inquiryId,
             @RequestPart("request") InquiryUpdateRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file
     ) throws IOException {
-        String userId = "rrrr@naver.com";
-        inquiryService.update(userId, inquiryId, request, file);
+
+        inquiryService.update(jwt.getSubject(), inquiryId, request, file);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
 
     @PostMapping("/{inquiryId}/comments")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> comment(
             @PathVariable String inquiryId,
             @RequestBody CommentCreateRequest request) {
