@@ -35,7 +35,7 @@ public class Inquiry {
     private String fileUrl;
 
     @Enumerated(EnumType.STRING)
-    private ProcessingStatus processingStatus = ProcessingStatus.N;
+    private ProcessingStatus processingStatus = ProcessingStatus.PENDING;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -62,8 +62,8 @@ public class Inquiry {
     }
 
     //활성화 상태 변경
-    public void updatedProcessingStatus() {
-        this.processingStatus = ProcessingStatus.Y;
+    public void updatedProcessingStatus(ProcessingStatus status) {
+        this.processingStatus = status;
     }
 
     //문의 수정(제목, 내용)
