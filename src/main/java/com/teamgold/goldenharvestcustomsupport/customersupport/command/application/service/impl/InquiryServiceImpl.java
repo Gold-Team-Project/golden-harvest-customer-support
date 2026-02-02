@@ -48,7 +48,7 @@ public class InquiryServiceImpl implements InquiryService {
                 .title(request.title())
                 .body(request.body())
                 .fileUrl(fileUrl)
-                .processingStatus(ProcessingStatus.N)
+                .processingStatus(ProcessingStatus.PENDING)
                 .build();
 
         inquiryRepository.save(inquiry);
@@ -94,7 +94,7 @@ public class InquiryServiceImpl implements InquiryService {
 
         if (request.comment() != null) {
             inquiry.updatedComment(request.comment()); // 답변 작성
-            inquiry.updatedProcessingStatus(); // 문의 상태 변경
+            inquiry.updatedProcessingStatus(request.status()); // 문의 상태 변경
         }
 
 

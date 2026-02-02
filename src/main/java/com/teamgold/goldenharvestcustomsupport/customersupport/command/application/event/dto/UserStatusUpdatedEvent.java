@@ -3,7 +3,7 @@ package com.teamgold.goldenharvestcustomsupport.customersupport.command.applicat
 import lombok.Builder;
 
 @Builder
-public record UserUpdatedEvent(
+public record UserStatusUpdatedEvent(
         String email,
         String company,
         String businessNumber,
