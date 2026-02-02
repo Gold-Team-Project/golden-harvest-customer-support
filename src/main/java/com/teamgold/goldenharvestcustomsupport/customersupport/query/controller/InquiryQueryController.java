@@ -4,6 +4,9 @@ import com.teamgold.goldenharvestcustomsupport.common.response.ApiResponse;
 import com.teamgold.goldenharvestcustomsupport.customersupport.query.service.InquiryQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,11 +17,11 @@ public class InquiryQueryController {
 
     @GetMapping("/inquiries")
     public ResponseEntity<ApiResponse<?>> getAllInquiry(
-            @RequestParam(name = "userId") String userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "size", defaultValue = "20") Integer size) {
 
-        return ResponseEntity.ok(ApiResponse.success(inquiryQueryService.getAllInquiry(userId, page, size)));
+        return ResponseEntity.ok(ApiResponse.success(inquiryQueryService.getAllInquiry(jwt.getSubject(), page, size)));
     }
 
     @GetMapping("/inquiries/{inquiryNo}")
@@ -27,6 +30,7 @@ public class InquiryQueryController {
     }
 
     @GetMapping("/admin/inquiries")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> getAllAdminInquiry(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "size", defaultValue = "20") Integer size
@@ -35,6 +39,7 @@ public class InquiryQueryController {
     }
 
     @GetMapping("/admin/inquiries/{inquiryNo}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<?>> getDetailAdminInquiry(@PathVariable String inquiryNo) {
         return ResponseEntity.ok(ApiResponse.success(inquiryQueryService.getDetailAdminInquiry(inquiryNo)));
     }
