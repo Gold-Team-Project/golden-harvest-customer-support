@@ -10,6 +10,10 @@ import com.teamgold.goldenharvestcustomsupport.customersupport.command.applicati
 import com.teamgold.goldenharvestcustomsupport.customersupport.command.domain.inquiry.Inquiry;
 import com.teamgold.goldenharvestcustomsupport.customersupport.command.domain.inquiry.ProcessingStatus;
 import com.teamgold.goldenharvestcustomsupport.customersupport.command.infrastructure.repository.inquiry.InquiryRepository;
+import com.teamgold.goldenharvestcustomsupport.customersupport.infrastructure.client.UserClient;
+import com.teamgold.goldenharvestcustomsupport.customersupport.infrastructure.client.dto.UserResponse;
+import com.teamgold.goldenharvestcustomsupport.customersupport.command.domain.snapshot.InquiryWriterSnapshot;
+import com.teamgold.goldenharvestcustomsupport.customersupport.command.infrastructure.repository.snapshot.InquiryWriterSnapshotRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,14 +27,32 @@ import java.util.UUID;
 public class InquiryServiceImpl implements InquiryService {
     private final InquiryRepository inquiryRepository;
     private final FileUploadService fileUploadService;
+    private final UserClient userClient;
+    private final InquiryWriterSnapshotRepository inquiryWriterSnapshotRepository;
 
     @Override
     @Transactional
     public void create(
             String userId,
             InquiryCreateRequest request,
-            MultipartFile file
-    ) throws IOException {
+            MultipartFile file) throws IOException {
+
+        // 1. 사용자 정보 조회 및 스냅샷 저장
+        try {
+            UserResponse userResponse = userClient.getUserAttributes(userId);
+            if (userResponse != null) {
+                InquiryWriterSnapshot snapshot = InquiryWriterSnapshot.builder()
+                        .userEmail(userResponse.email())
+                        .company(userResponse.company())
+                        .name(userResponse.name())
+                        .phoneNumber(userResponse.phoneNumber())
+                        .build();
+                inquiryWriterSnapshotRepository.save(snapshot);
+            }
+        } catch (Exception e) {
+            // 사용자 정보 조회 실패 시 로그 남기고 진행 (문의 생성은 막지 않음) or 비즈니스 로직에 따라 처리
+            // log.error("Failed to save inquiry writer snapshot for user: {}", userId, e);
+        }
 
         String fileUrl = null;
 
@@ -63,7 +85,6 @@ public class InquiryServiceImpl implements InquiryService {
 
         inquiryRepository.delete(inquiry);
 
-
     }
 
     @Override
@@ -72,8 +93,7 @@ public class InquiryServiceImpl implements InquiryService {
             String userId,
             String inquiryNo,
             InquiryUpdateRequest request,
-            MultipartFile file
-    ) throws IOException {
+            MultipartFile file) throws IOException {
         Inquiry inquiry = inquiryRepository
                 .findByInquiryIdAndUserId(inquiryNo, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.INQUIRY_NOT_FOUND));
@@ -97,8 +117,6 @@ public class InquiryServiceImpl implements InquiryService {
             inquiry.updatedProcessingStatus(request.status()); // 문의 상태 변경
         }
 
-
     }
-
 
 }
