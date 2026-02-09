@@ -1,6 +1,5 @@
 package com.teamgold.goldenharvestcustomsupport.customersupport.command.application.controller;
 
-
 import com.teamgold.goldenharvestcustomsupport.common.response.ApiResponse;
 import com.teamgold.goldenharvestcustomsupport.customersupport.command.application.dto.request.comment.CommentCreateRequest;
 import com.teamgold.goldenharvestcustomsupport.customersupport.command.application.dto.request.inquiry.InquiryCreateRequest;
@@ -19,18 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/inquiries")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class InquiryController {
     private final InquiryService inquiryService;
 
-
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/inquiries", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<?>> save(
             @AuthenticationPrincipal Jwt jwt,
             @RequestPart("request") InquiryCreateRequest request,
-            @RequestPart(value = "file", required = false) MultipartFile file
-    ) throws IOException {
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         inquiryService.create(jwt.getSubject(), request, file);
         return ResponseEntity
@@ -38,7 +35,7 @@ public class InquiryController {
                 .body(ApiResponse.success(null));
     }
 
-    @DeleteMapping("/{inquiryId}")
+    @DeleteMapping("/inquiries/{inquiryId}")
     public ResponseEntity<ApiResponse<?>> delete(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String inquiryId) {
@@ -47,25 +44,20 @@ public class InquiryController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    @PutMapping(
-            value = "/{inquiryId}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PutMapping(value = "/inquiries/{inquiryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<?>> update(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String inquiryId,
             @RequestPart("request") InquiryUpdateRequest request,
-            @RequestPart(value = "file", required = false) MultipartFile file
-    ) throws IOException {
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         inquiryService.update(jwt.getSubject(), inquiryId, request, file);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-
-    @PostMapping("/{inquiryId}/comments")
+    @PostMapping("/admin/inquiries/{inquiryId}/process")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<?>> comment(
+    public ResponseEntity<ApiResponse<?>> process(
             @PathVariable String inquiryId,
             @RequestBody CommentCreateRequest request) {
         inquiryService.comment(inquiryId, request);
